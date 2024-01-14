@@ -3,7 +3,7 @@ import { dashboardConfig } from '@/config/dashboard'
 import Image from 'next/image'
 import { DashboardNav } from '@/components/nav'
 
-export default function Home({children} : any) {
+export default function ScheduleLayout({children} : any) {
 
     return (
       <div className="flex min-h-screen flex-col space-y-6">
