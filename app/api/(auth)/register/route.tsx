@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
-        .setExpirationTime('2h')
+        .setExpirationTime('10h')
         .sign(new TextEncoder().encode(process.env.JWT_SECRET!));
 
 

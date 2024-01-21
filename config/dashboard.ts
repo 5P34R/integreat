@@ -3,17 +3,17 @@ export const dashboardConfig = {
     HospitalsidebarNav: [
       {
         title: "Schedule",
-        href: "/admin/schedule",
+        href: "/hospital/schedule",
         icon: "post",
       },
       {
         title: "Department",
-        href: "/dashboard/billing",
+        href: "/hospital/department",
         icon: "billing",
       },
       {
         title: "Doctors",
-        href: "/dashboard/settings",
+        href: "/hospital/doctor",
         icon: "settings",
       },
     ],

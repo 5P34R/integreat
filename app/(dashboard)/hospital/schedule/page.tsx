@@ -21,8 +21,7 @@ import {
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { Item } from "@radix-ui/react-select"
-
+import { useEffect } from "react"
 
 
 const data = [
@@ -42,17 +41,32 @@ const data = [
 
 
 export default function SchedulePage() {
+
+
     const router = useRouter()
+
+
+    // const []
+
 
     const deleteSchedule = (id: any) => {
         console.log(id)
     }
 
+    const fetchUserDetails = async () => {
+        await fetch('/api/me').then(res => res.json()).then(data => console.log(data))
+    }
+
+    useEffect(() => {
+        fetchUserDetails()
+    },[])
+
+
     return (
             <div className="w-full">
                 <div className="flex items-center">
                     <h1 className="text-xl flex justify-evenly items-center w-[80%] p-4 font-bold mb-10">Schedule</h1> 
-                    <Button className="flex gap-2 items-center" onClick={() => router.push("/admin/schedule/create")}>Add New <Icons.add /></Button> 
+                    <Button className="flex gap-2 items-center" onClick={() => router.push("/hospital/schedule/create")}>Add New <Icons.add /></Button> 
                 </div>
 
                 <div className="flex justify-evenly items-center w-[80%] p-4 mb-10">

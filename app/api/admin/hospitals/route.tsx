@@ -1,5 +1,6 @@
 import connectToDB from "@/database/connect";
 import Hospital from "@/database/models/hospital.model";
+import User from "@/database/models/user.model";
 import { add } from "date-fns";
 import { NextResponse } from "next/server";
 
@@ -33,12 +34,14 @@ export async function POST(request: Request) {
             return NextResponse.json({ Message: "Hostpial Already Exist" }, { status: 400 });
         }
 
+        const existingUser = await User.findById(user);
+
         console.log(user)
 
         const hospital = await Hospital.create({
             name: name,
             address: address,
-            user: user,
+            user: existingUser,
         });
 
         console.log(hospital);

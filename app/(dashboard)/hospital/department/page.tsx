@@ -54,21 +54,19 @@ import { Icons } from "@/components/icons"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 
 
 // table columns type
 
-export type Hospital = {
+export type Department = {
   _id: string
-  name : string
-  address : string
-  user: string
-  departments: string[] | null
+ name: string
+ schedule: string[] | null
 }
 
-export type Users = {
-    _id: string
+export type User = {
+    id: string
     username: string
     fullname: string
     email: string,
@@ -76,17 +74,15 @@ export type Users = {
     isHospital: boolean,
   }
 
-
-
-export default function HospitalDashboard() {
+export default function DepartmentDashboard() {
 
   const router = useRouter();
 
 
-  const [hostpial, setHospital] = React.useState<Hospital[]>([])
-  const [users, setUsers] = React.useState<Users[]>([])
+  const [department, setDepartment] = React.useState<Department[]>([])
+  const [user, setUser] = React.useState<User>()
   const [isLoading, setIsLoading] = React.useState(true)
-
+  
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -95,48 +91,41 @@ export default function HospitalDashboard() {
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-
-    async function getAllUsers(){
-    try {
-      const result = await fetch(`/api/admin/users`);
-  
-      if (result.ok) {
-        const data = await result.json();
-        console.log(data);
-        setUsers(data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  const currentUser = async () => {
+    await fetch('/api/me').then(res => res.json()).then(data => setUser(data))
   }
-
 
   // Fetching data from /api/admin/users
   React.useEffect(() => {
-    fetch("/api/admin/hospitals")
+    currentUser()
+  }, []);
+
+
+  React.useEffect(() => {
+    console.log(user);
+    fetch(`/api/department?user=${user?.id}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        setHospital(data);
-        setIsLoading(false);
+        console.log(data.hospital.departments);
+        setDepartment(data.hospital.departments);
       });
+    }
+    , [user]);
 
-      getAllUsers();
-  }, []);
 
 
   async function handleDelete(id: any) {
     console.log(id);
     try {
-      const result = await fetch(`/api/admin/hospitals/${id}`, {
+      const result = await fetch(`/api/department/${id}`, {
         method: "DELETE",
       });
   
       console.log(result);
       if (result.ok) {
-        console.log('Hospital Deleted');
+        console.log('User Deleted');
         // Update state by filtering out the deleted user
-        setHospital(prevHos => prevHos.filter(hosp => hosp._id !== id));
+        setDepartment(prevDepartment => prevDepartment.filter(department => department._id !== id));
       }
     } catch (error) {
       console.log(error);
@@ -144,10 +133,10 @@ export default function HospitalDashboard() {
   }
 
 
-  
+
 
   // table columns config
-  const columns: ColumnDef<Hospital>[] = [
+  const columns: ColumnDef<Department>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -192,44 +181,12 @@ export default function HospitalDashboard() {
       },
       cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
     },
-
-    {
-        accessorKey: "address",
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-              Address
-              <CaretSortIcon className="ml-2 h-4 w-4" />
-            </Button>
-          )
-        },
-        cell: ({ row }) => <div className="lowercase">{row.getValue("address")}</div>,
-      },
-
-    {
-      accessorKey: "departments",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Departments
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-      cell: ({ row }) => <div className="lowercase">{row.getValue("departments")}</div>,
-    },
-    
+   
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const user = row.original
+        const depart = row.original
 
         return (
           <DropdownMenu>
@@ -242,18 +199,18 @@ export default function HospitalDashboard() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(user._id)}
+                onClick={() => navigator.clipboard.writeText(depart._id)}
               >
-                Copy User ID
+                Copy Department ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <Link href={`/admin/user/${user._id}`}>
-                <DropdownMenuItem>Edit User</DropdownMenuItem>
+              <Link href={`/admin/user/${depart._id}`}>
+                <DropdownMenuItem>Edit Department</DropdownMenuItem>
               </Link>
 
 
               <DropdownMenuItem>
-              <Button className="bg-inherit text-black hover:bg-inherit hover:text-black" onClick={() => handleDelete(user._id)}>Delete user</Button>
+              <Button className="bg-inherit text-black hover:bg-inherit hover:text-black" onClick={() => handleDelete(depart._id)}>Delete Department</Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -262,9 +219,10 @@ export default function HospitalDashboard() {
     },
   ]
 
+
   // React Table
   const table = useReactTable({
-    data: hostpial,
+    data: department,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -286,35 +244,37 @@ export default function HospitalDashboard() {
 
   const [formData, setFormData] = React.useState({
     name: '',
-    address: '',
-    user: ''
   });
 
   const handleInputChange = (e: any) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleInputChangeSelect = (e: any) => {
-    console.log(e);
-  
-    const name = "user";
-  
+
+
+  const handleCheckboxChangeIsAdmin = (target: boolean) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: e, 
+      isAdmin: target,
     }));
-  };
+  }
+
+  const handleCheckboxChangeIsHospital = (target: boolean) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      isHospital: target,
+    }));
+  }
 
 
   const handleSubmit = async () => {
-    console.log(formData);
     try {
       // Send a POST request to /api/admin/users with the form data
-      const response = await fetch('/api/admin/hospitals', {
+      const response = await fetch('/api/department', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -324,17 +284,16 @@ export default function HospitalDashboard() {
 
       if (response.ok) {
         // Handle success (you may want to close the dialog or perform other actions)
-        console.log('Hospital created successfully');
-        const newHospital = await response.json(); // Assuming the server responds with the newly created university
-
-        setHospital(prevHos => [...prevHos, newHospital]);
-        router.push('/admin/hospitals');
+        console.log('Department created successfully');
+        const newDepartment = await response.json(); // Assuming the server responds with the newly created university
+        setDepartment(prevDepartment => [...prevDepartment, newDepartment]);
+        router.push('/hospital/department');
       } else {
         // Handle errors
-        console.error('Failed to create hospital');
+        console.error('Failed to create department');
       }
     } catch (error) {
-      console.error('Error creating hospital:', error);
+      console.error('Error creating department:', error);
     }
   };
 
@@ -342,25 +301,25 @@ export default function HospitalDashboard() {
 
     <div className="w-full container mx-auto">
       <div className="flex items-center justify-between">
-        <div className="text-2xl font-semibold">Hospitals</div>
+        <div className="text-2xl font-semibold">Users</div>
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="default">
               <Icons.add />
-              Create Hospitals
+              Create Department
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Create Hospital</DialogTitle>
+              <DialogTitle>Create Department</DialogTitle>
               <DialogDescription>
-                Enter details of hospital to create.
+                Enter details of users to Department.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
-                  name
+                  Name
                 </Label>
                 <Input
                   id="name"
@@ -370,41 +329,7 @@ export default function HospitalDashboard() {
                   className="col-span-3"
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right">
-                  Address
-                </Label>
-                <Input
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
-                  className="col-span-3"
-                />
-              </div>
 
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="user" className="text-right">
-                    User
-                </Label>
-                <Select onValueChange={(e) => handleInputChangeSelect(e)}>
-                    <SelectTrigger className="w-[280px]">
-                    <SelectValue placeholder="Select User..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                    {users.map((user) => (
-                        <SelectItem
-                        key={user._id}
-                        value={user._id}
-                        onClick={() => console.log(user)}
-                        >
-                        {user.username}
-                        </SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
-                </div>
-              
             </div>
             <DialogFooter>
               <DialogClose asChild>
@@ -421,10 +346,10 @@ export default function HospitalDashboard() {
 
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter emails..."
+          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("email")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

@@ -50,9 +50,16 @@ function validateAccess(payload: any, pathname: string): boolean {
     return true;
   } else if (pathname.startsWith('/hospital') && payload.isHospital) {
     return true;
+  } else if (pathname.startsWith('/admin') && payload.isHospital) {
+    // Redirect to /hospital for users having both roles
+    return false;
+  } else if (pathname.startsWith('/hospital') && payload.isAdmin) {
+    // Redirect to /admin for users having both roles
+    return false;
   }
   return false;
 }
+
 
 function redirectToLogin(request: NextRequest) {
   return NextResponse.redirect(new URL('/auth/login', request.url));
