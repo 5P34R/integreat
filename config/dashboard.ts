@@ -1,16 +1,6 @@
 export const dashboardConfig = {
-    mainNav: [
-      {
-        title: "Documentation",
-        href: "/docs",
-      },
-      {
-        title: "Support",
-        href: "/support",
-        disabled: true,
-      },
-    ],
-    sidebarNav: [
+    mainNav: [],
+    HospitalsidebarNav: [
       {
         title: "Schedule",
         href: "/admin/schedule",
@@ -27,4 +17,18 @@ export const dashboardConfig = {
         icon: "settings",
       },
     ],
+
+    AdminSidebarNav: [
+      {
+        title: "Users",
+        href: "/admin",
+        icon: "users",
+      },
+      {
+        title: "Hospitals",
+        href: "/admin/hospitals",
+        icon: "hospitals",
+      },
+      
+    ]
   }
