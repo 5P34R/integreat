@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
+import Link from "next/link";
 
 
 export default function LoginPage() {
@@ -46,35 +47,42 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex w-full max-h-screen justify-center items-center">
-            <Card className="w-1/4">
-                <CardHeader>
-                    <CardTitle className="text-center">Login </CardTitle>
-                    <CardDescription className="text-center">Sign in to stay updated</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form>
+        <>
+            <div className="flex w-full max-h-screen justify-center items-center">
+                <Card className="w-1/4">
+                    <CardHeader>
+                        <CardTitle className="text-center">Login </CardTitle>
+                        <CardDescription className="text-center">Sign in to stay updated</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form>
 
-                        <div className="grid w-full items-center gap-4">
-                            <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="username">Username</Label>
-                                <Input id="username" placeholder="Enter Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                            <div className="grid w-full items-center gap-4">
+                                <div className="flex flex-col space-y-1.5">
+                                    <Label htmlFor="username">Username</Label>
+                                    <Input id="username" placeholder="Enter Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                                </div>
+                                
+                                <div className="flex flex-col space-y-1.5">
+                                    <Label htmlFor="password">Password</Label>
+                                    <Input id="password" placeholder="Enter Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                </div>
+                                
                             </div>
-                            
-                            <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="password">Password</Label>
-                                <Input id="password" placeholder="Enter Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                            </div>
-                            
-                        </div>
-                        {error && <p className="text-red-500">{error}</p>}
-                    </form>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                    <Button variant="outline">Cancel</Button>
-                    <Button type="submit" onClick={handleSubmit} className="bg-[#fbd716] text-black">Save</Button>
-                </CardFooter>
-            </Card>
-        </div>
+                            {error && <p className="text-red-500">{error}</p>}
+                        </form>
+                    </CardContent>
+                    <CardFooter className="flex justify-between">
+                        <Button variant="outline">Cancel</Button>
+                        <Button type="submit" onClick={handleSubmit} className="bg-[#fbd716] text-black">Save</Button>
+                    </CardFooter>
+                </Card>
+                
+            </div>
+            <div className="w-full justify-center text-center mt-3">
+                <p> Don't have an account ?</p>
+
+                <Link href="/auth/register"><Button variant={"link"} className="text-blue-500">Register here</Button></Link>
+            </div></>
     );
 }
